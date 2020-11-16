@@ -1,0 +1,30 @@
+apply plugin: 'groovy'
+
+configurations {
+	installers {}
+}
+
+repositories {
+	mavenCentral()
+
+}
+dependencies {
+	compile gradleApi()
+	compile localGroovy()
+
+}
+
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			pom.groupId = project.group
+			pom.artifactId =project.name
+			pom.version = project.version
+			repository(url:mavenLocal().getUrl())
+		}
+	}
+
+
+}
+
