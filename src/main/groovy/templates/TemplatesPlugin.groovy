@@ -89,12 +89,15 @@ class TemplatesPlugin implements Plugin<Project> {
         // FIXME: would be better to allow user to configure the desired template set rather than get them all
 
         project.apply(plugin: WebappTemplatesPlugin)
+        project.apply(plugin: ConfigTemplatesPlugin)
         project.apply(plugin: EurekaTemplatesPlugin)
+        project.apply(plugin: ZuulTemplatesPlugin)
 
         project.task(
                 'exportAllTemplates',
                 dependsOn: [
-                        'exportJavaTemplates', 'exportWebappTemplates','exportEurekaTemplates'
+                        'exportJavaTemplates', 'exportWebappTemplates',
+                        'exportEurekaTemplates','exportConfigTemplates','exportZuulTemplatesTask'
                 ],
                 group: TemplatesPlugin.group,
                 description: 'Exports all the default template files into the current directory.'

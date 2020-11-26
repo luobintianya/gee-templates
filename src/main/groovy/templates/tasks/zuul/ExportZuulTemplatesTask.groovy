@@ -15,21 +15,20 @@
  * limitations under the License.
  */
 
-package templates.tasks.eureka
+package templates.tasks.zuul
 
 import templates.tasks.AbstractTemplateExportTask
 
 /**
  *  Task to export the default java templates into the current directory.
  */
-class ExportEurekaTemplatesTask extends AbstractTemplateExportTask {
+class ExportZuulTemplatesTask extends AbstractTemplateExportTask {
 
-    ExportEurekaTemplatesTask(){
+    ExportZuulTemplatesTask(){
         super(
             'Exports the default java template files into the current directory.',
             [
-                '/templates/eureka/build.gradle.tmpl',
-                '/templates/eureka/java-class.tmpl'
+                '/templates/zuul'
             ]
         )
     }

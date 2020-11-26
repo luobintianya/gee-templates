@@ -93,7 +93,7 @@ task createDockerfile(type: Dockerfile) {
     copyFile war.archiveFileName.get(), '/app/' + war.archiveFileName.get()
     entryPoint 'java'
     defaultCommand '-jar', '/app/' + war.archiveFileName.get()
-    exposePort 8888 //需要和application.yaml的eureka的port一致
+    exposePort 8888 //�?要和application.yaml的eureka的port�?�?
     runCommand 'apk --update --no-cache add curl'
     instruction 'HEALTHCHECK CMD curl -f http://localhost:8888/health || exit 1'
 }

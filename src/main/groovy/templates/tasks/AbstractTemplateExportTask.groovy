@@ -21,6 +21,9 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import templates.TemplatesPlugin
 
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+
 /**
  * Abstract base task for template exporters.
  */
@@ -51,10 +54,42 @@ abstract class AbstractTemplateExportTask extends DefaultTask {
 
     private void exportTemplates(def templates = []) {
         templates.ProjectTemplate.fromUserDir {
-            templates.each { template ->
-                def tStream = getClass().getResourceAsStream(template)
-                "$template" tStream.text
+            templates.each {
+                template ->
+                    List<String> files = new ArrayList<>();
+                    getFileFromFolder(template, files);
+                    files.each { file ->
+                        def tStream = getClass().getResourceAsStream(file)
+                        "$file" tStream.text
+                    }
+
+
             }
         }
     }
+
+
+    void getFileFromFolder(String template, List<String> files) {
+        String rootPath = getClass().getResource(template).toString();
+        String jarPath = rootPath.substring(0, rootPath.indexOf("!/") + 2);
+        URL jarURL = new URL(jarPath);
+        JarURLConnection jarCon = (JarURLConnection) jarURL.openConnection();
+        JarFile jarFile = jarCon.getJarFile();
+        Enumeration<JarEntry> jarEntrys = jarFile.entries();
+        while (jarEntrys.hasMoreElements()) {
+            JarEntry entry = jarEntrys.nextElement();
+            String name = entry.getName();
+            if (name.indexOf(template.replaceFirst("/","")) >= 0) {
+                if (!entry.isDirectory()) {
+                    files.add("/"+name)
+                }
+            }
+        }
+    }
+
+
 }
+
+
+
+

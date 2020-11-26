@@ -11,21 +11,7 @@ import templates.tasks.eureka.ExportEurekaTemplatesTask
  */
 
 class EurekaTemplatesPlugin implements Plugin<Project> {
-	static getClassParts( final String fullClassName ){
-		def classParts = fullClassName.split(/\./) as List
-		[
-				className: classParts.removeLast(),
-				classPackagePath: classParts.join(File.separator),
-				classPackage: classParts.join('.')
-		]
-	}
-	static getPackageParts( final String fullPackageName ){
-		def classParts = fullPackageName.split(/\./) as List
-		[
-				classPackagePath: classParts.join(File.separator),
-				classPackage: classParts.join('.')
-		]
-	}
+
 
 	void apply(Project project) {
 		project.task 'createEurekaProject', type: CreateEurekaProjectTask

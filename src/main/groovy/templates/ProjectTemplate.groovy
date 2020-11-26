@@ -18,11 +18,14 @@
 package templates
 
 import groovy.text.GStringTemplateEngine
+import org.gradle.api.Project
 import org.gradle.util.Path
 
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
 
 /**
  * This class is used to construct a ProjectTemplate. A project template consists of files and directories. This builder
@@ -95,6 +98,18 @@ class ProjectTemplate {
         file(name, content)
     }
 
+    File gtFile(String name, String addToPath) {
+        File file
+        if (parent && addToPath) {
+            file = new File(parent.path + addToPath, name)
+        } else if (parent && !addToPath) {
+            file = new File(parent, name)
+        } else {
+            file = new File(name)
+        }
+        file.exists() ?: file.parentFile.mkdirs() && file.createNewFile()
+        return file
+    }
     /**
      * Creates a new file with the given name. If a 'content' argument is provided it will be appended, or replace the
      * content of the current file (if it exists) based on the value of the 'append' argument.
@@ -103,21 +118,21 @@ class ProjectTemplate {
      */
     void file(Map args = [:], String name) {
         File file
-        if (parent) {
-            file = new File(parent, name)
-        } else {
-            file = new File(name)
-        }
-        file.exists() ?: file.parentFile.mkdirs() && file.createNewFile()
         def content
+        println name
         if (args.content) {
             content = args.content.stripIndent()
         } else if (args.template) {
+            if(args.path){
+                  file=gtFile(name,args.path)
+            }
             content = renderTemplate(args, args.template)
         } else if (args.copy) {
             Files.copy(getTemplatePath(args.path + "/" + name), new File(parent.absolutePath+"\\"+name).toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
-
+        if (!file) {
+            file = gtFile(name, null)
+        }
         if (content) {
             if (args.append) {
                 file.append(content)
@@ -126,6 +141,8 @@ class ProjectTemplate {
             }
         }
     }
+
+
 
     /**
      * Render the template at the given path with the provided parameters. An attempt will be made to load the template path
@@ -221,7 +238,7 @@ class ProjectTemplate {
             if (arg instanceof Closure) {
                 directory(name, arg)
             } else if (arg instanceof Map) {
-                file(arg, name)
+                file(arg, name)// name 是要调用的方法
             } else if (arg instanceof String || arg instanceof GString) {
                 file([content: arg], name)
             } else {
@@ -229,4 +246,35 @@ class ProjectTemplate {
             }
         }
     }
+
+      static getClassParts( final String fullClassName ){
+        def classParts = fullClassName.split(/\./) as List
+        [
+                className: classParts.removeLast(),
+                classPackagePath: classParts.join(File.separator),
+                classPackage: classParts.join('.')
+        ]
+    }
+      static getPackageParts( final String fullPackageName ){
+        def classParts = fullPackageName.split(/\./) as List
+        [
+                classPackagePath: classParts.join(File.separator),
+                classPackage: classParts.join('.')
+        ]
+    }
+
+
+    /**
+     * Finds the path to the main java source directory.
+     *
+     * @param project The project.
+     * @return The path to the main java source directory.
+     */
+     static File findSrcDir(Project project, final String newProjectPath) {
+        def mainDir = new File(newProjectPath).listFiles({ it, name -> name.contains("src") } as FilenameFilter).last()
+        return mainDir
+    }
+
+
+
 }

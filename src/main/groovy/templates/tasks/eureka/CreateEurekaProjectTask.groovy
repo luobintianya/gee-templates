@@ -52,16 +52,19 @@ class CreateEurekaProjectTask extends AbstractJavaProjectTask {
             }
 
             def mainSrcDir = null
+            def testSrcDir = null
             def mainResourceDir = null
             try {
                 // get main java dir, and check to see if Java plugin is installed.
 
                 String createProjectPath = project.projectDir.path + "\\" + projectPath
-                def mainDir = findMainDir(project, createProjectPath)
-                mainSrcDir = mainDir.listFiles({ it, name -> name.contains("java") } as FilenameFilter)?.last().absolutePath;
-                mainSrcDir=mainSrcDir.minus(project.projectDir.path);
-                mainResourceDir = mainDir.listFiles({ it, name -> name.contains("resources") } as FilenameFilter)?.last().absolutePath;
-                mainResourceDir= mainResourceDir.minus(project.projectDir.path);
+                def srcDir = ProjectTemplate.findSrcDir(project, createProjectPath)
+                mainSrcDir = srcDir.listFiles({ it, name -> name.contains("main") } as FilenameFilter)?.last().listFiles( {it,name -> name.contains("java")} as FilenameFilter).last().absolutePath
+                testSrcDir = srcDir.listFiles({ it, name -> name.contains("test") } as FilenameFilter)?.last().listFiles({ it, name -> name.contains("java") } as FilenameFilter).last().absolutePath
+                testSrcDir= testSrcDir.minus(project.projectDir.path)
+                mainSrcDir=mainSrcDir.minus(project.projectDir.path)
+                mainResourceDir = srcDir.listFiles({ it, name -> name.contains("main") } as FilenameFilter)?.last().listFiles({ it, name -> name.contains("resources") } as FilenameFilter)?.last().absolutePath;
+                mainResourceDir= mainResourceDir.minus(project.projectDir.path)
             } catch (Exception e) {
                 e.printStackTrace()
                 throw new IllegalStateException('It seems that the Java plugin is not installed, I cannot determine the main java source directory.', e)
@@ -70,7 +73,7 @@ class CreateEurekaProjectTask extends AbstractJavaProjectTask {
             String packageName = (project.properties[NEW_PACKAGE_NAME] ?: TemplatesPlugin.prompt('Package name (com.example)')) + ".eureka"
             packageName= packageName.replaceFirst("\r","").replaceFirst("\t","")
             if (packageName) {
-                def classParts = EurekaTemplatesPlugin.getPackageParts(packageName)
+                def classParts = ProjectTemplate.getPackageParts(packageName)
                 ProjectTemplate.fromUserDir {
                     "${mainSrcDir}" {
                         "${classParts.classPackagePath}" {
@@ -78,8 +81,14 @@ class CreateEurekaProjectTask extends AbstractJavaProjectTask {
 
                         }
                     }
+                    "${testSrcDir}" {
+                        "${classParts.classPackagePath}" {
+                            "CloudtestApplicationTests.java" template: '/templates/common/CloudtestApplicationTests-class.tmpl', classPackage: classParts.classPackage, className: "CloudtestApplicationTests"
+
+                        }
+                    }
                     "${mainResourceDir}" {
-                        "application.yaml" copy: true, path: "/templates/eureka"
+                        "application.yml" copy: true, path: "/templates/eureka"
                         "banner.txt" copy: true, path: "/templates/eureka"
                         "logback.xml" copy: true, path: "/templates/eureka"
                         "favicon.ico" copy: true, path: "/templates/eureka"
@@ -97,16 +106,5 @@ class CreateEurekaProjectTask extends AbstractJavaProjectTask {
     }
 
 
-    /**
-     * Finds the path to the main java source directory.
-     *
-     * @param project The project.
-     * @return The path to the main java source directory.
-     */
-    private static File findMainDir(Project project, final String newProjectPath) {
 
-        def mainDir = new File(newProjectPath).listFiles({ it, name -> name.contains("src") } as FilenameFilter).last().listFiles({ it, name -> name.contains("main") } as FilenameFilter)
-        mainDir = mainDir?.first()
-        return mainDir
-    }
 }

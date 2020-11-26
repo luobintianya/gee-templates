@@ -2,34 +2,21 @@ package templates
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import templates.tasks.config.CreateConfigProjectTask
+import templates.tasks.config.ExportConfigTemplatesTask
 import templates.tasks.eureka.CreateEurekaProjectTask
 import templates.tasks.eureka.ExportEurekaTemplatesTask
 
 /**
- * spring-cloud eureka server generation
+ * spring-cloud config server generation
  *
  */
 
-class EurekaTemplatesPlugin implements Plugin<Project> {
-	static getClassParts( final String fullClassName ){
-		def classParts = fullClassName.split(/\./) as List
-		[
-				className: classParts.removeLast(),
-				classPackagePath: classParts.join(File.separator),
-				classPackage: classParts.join('.')
-		]
-	}
-	static getPackageParts( final String fullPackageName ){
-		def classParts = fullPackageName.split(/\./) as List
-		[
-				classPackagePath: classParts.join(File.separator),
-				classPackage: classParts.join('.')
-		]
-	}
+class ConfigTemplatesPlugin implements Plugin<Project> {
 
 	void apply(Project project) {
-		project.task 'createEurekaProject', type: CreateEurekaProjectTask
+		project.task 'createConfigProject', type: CreateConfigProjectTask
 
-        project.task 'exportEurekaTemplates', type: ExportEurekaTemplatesTask
+        project.task 'exportConfigTemplates', type: ExportConfigTemplatesTask
 	}
 }

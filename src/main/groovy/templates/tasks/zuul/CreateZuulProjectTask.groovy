@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-package templates.tasks.config
+package templates.tasks.zuul
 
-import org.gradle.api.Project
+
 import org.gradle.api.tasks.TaskAction
-import templates.EurekaTemplatesPlugin
-import templates.JavaTemplatesPlugin
 import templates.ProjectTemplate
 import templates.TemplatesPlugin
 import templates.tasks.java.AbstractJavaProjectTask
@@ -28,9 +26,9 @@ import templates.tasks.java.AbstractJavaProjectTask
 /**
  * Task that creates a new spring-cloud config  project in a specified directory.
  */
-class CreateConfigProjectTask extends AbstractJavaProjectTask {
+class CreateZuulProjectTask extends AbstractJavaProjectTask {
 
-    CreateConfigProjectTask() {
+    CreateZuulProjectTask() {
         super(
                 'Creates a new Gradle spring-cloud config project in a new directory named after your project.'
         )
@@ -77,7 +75,9 @@ class CreateConfigProjectTask extends AbstractJavaProjectTask {
                 ProjectTemplate.fromUserDir {
                     "${mainSrcDir}" {
                         "${classParts.classPackagePath}" {
-                            "ConfigApplication.java" template: '/templates/config/ConfigApplication-class.tmpl', classPackage: classParts.classPackage, className: "ConfigApplication"
+                            "GatewayApplication.java" template: '/templates/zuul/gateway/GatewayApplication-class.tmpl', classPackage: classParts.classPackage, className: "GatewayApplication"
+                            "TokenFilter.java" template: '/templates/zuul/gateway/filter/TokenFilter-class.tmpl', classPackage: classParts.classPackage, className: "TokenFilter",path:"/filter"
+                            "RateLimitFilter.java" template: '/templates/zuul/gateway/filter/RateLimitFilter-class.tmpl', classPackage: classParts.classPackage, className: "RateLimitFilter",path:"/filter"
 
                         }
                     }
@@ -88,10 +88,10 @@ class CreateConfigProjectTask extends AbstractJavaProjectTask {
                         }
                     }
                     "${mainResourceDir}" {
-                        "application.yml" copy: true, path: "/templates/config"
-                        "banner.txt" copy: true, path: "/templates/config"
-                        "logback.xml" copy: true, path: "/templates/config"
-                        "favicon.ico" copy: true, path: "/templates/config"
+                        "application.yml" copy: true, path: "/templates/zuul"
+                        "banner.txt" copy: true, path: "/templates/zuul"
+                        "logback.xml" copy: true, path: "/templates/zuul"
+                        "favicon.ico" copy: true, path: "/templates/zuul"
                     }
                 }
             } else {

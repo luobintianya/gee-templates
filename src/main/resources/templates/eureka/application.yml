@@ -12,6 +12,10 @@ eureka:
     serviceUrl:
       defaultZone: ${eureka.serviceUrl:http://127.0.0.1:8761} # 多个时,分开
 
+  #  register-with-eureka: false #服务端 禁止自己当做服务注册
+   # server:
+  #    enable-self-preservation: false #关闭心跳检测
+
 #  instance:
 #    hostname: ${hostnamex:EUREKA}
-#  environment: myd
+#  environment: myd,
