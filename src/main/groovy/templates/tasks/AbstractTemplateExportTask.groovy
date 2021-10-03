@@ -38,7 +38,7 @@ abstract class AbstractTemplateExportTask extends DefaultTask {
      * @param description the task description
      * @param paths the template paths
      */
-    protected AbstractTemplateExportTask(  final String description, final paths = []){
+    protected AbstractTemplateExportTask(final String description, final paths = []) {
 
         this.group = TemplatesPlugin.group
         this.description = description
@@ -48,7 +48,8 @@ abstract class AbstractTemplateExportTask extends DefaultTask {
     /**
      * Exports the configured templates.
      */
-    @TaskAction void export(){
+    @TaskAction
+    void export() {
         exportTemplates templatePaths
     }
 
@@ -56,8 +57,8 @@ abstract class AbstractTemplateExportTask extends DefaultTask {
         templates.ProjectTemplate.fromUserDir {
             templates.each {
                 template ->
-                    List<String> files = new ArrayList<>();
-                    getFileFromFolder(template, files);
+                    List<String> files = new ArrayList<>()
+                    getFileFromFolder(template, files)
                     files.each { file ->
                         def tStream = getClass().getResourceAsStream(file)
                         "$file" tStream.text
@@ -70,23 +71,39 @@ abstract class AbstractTemplateExportTask extends DefaultTask {
 
 
     void getFileFromFolder(String template, List<String> files) {
-        String rootPath = getClass().getResource(template).toString();
-        String jarPath = rootPath.substring(0, rootPath.indexOf("!/") + 2);
-        URL jarURL = new URL(jarPath);
-        JarURLConnection jarCon = (JarURLConnection) jarURL.openConnection();
-        JarFile jarFile = jarCon.getJarFile();
-        Enumeration<JarEntry> jarEntrys = jarFile.entries();
+
+        String rootPath = getClass().getResource(template).toString()
+        String rmPath = rootPath.replace(template, "").replace("file:/","").replaceAll("/","\\\\")
+
+        if (rootPath.indexOf("file:") >= 0) {
+            File file = new File(rootPath.substring("file:/".length(), rootPath.length()))
+            if (file.isDirectory()) {
+                if (file.listFiles().length > 0) {
+                    file.listFiles().each {
+                        getFileFromFolder(it.absolutePath.replace(rmPath,"").replaceAll("\\\\","/"), files)
+                    }
+                }
+                return
+            } else {
+                files.add(file.absolutePath.replace(rmPath,"").replaceAll("\\\\","/"))
+            }
+            return
+        }
+        String jarPath = rootPath.substring(0, rootPath.indexOf("!/") + 2)
+        URL jarURL = new URL(jarPath)
+        JarURLConnection jarCon = (JarURLConnection) jarURL.openConnection()
+        JarFile jarFile = jarCon.getJarFile()
+        Enumeration<JarEntry> jarEntrys = jarFile.entries()
         while (jarEntrys.hasMoreElements()) {
-            JarEntry entry = jarEntrys.nextElement();
-            String name = entry.getName();
-            if (name.indexOf(template.replaceFirst("/","")) >= 0) {
+            JarEntry entry = jarEntrys.nextElement()
+            String name = entry.getName()
+            if (name.indexOf(template.replaceFirst("/", "")) >= 0) {
                 if (!entry.isDirectory()) {
-                    files.add("/"+name)
+                    files.add("/" + name)
                 }
             }
         }
     }
-
 
 }
 

@@ -83,7 +83,7 @@ class TemplatesPlugin implements Plugin<Project> {
         return System.in.newReader().readLine() ?: String.valueOf(defaultValue)
     }
 
-    def void apply(Project project) {
+    void apply(Project project) {
         project.convention.plugins.templatePlugin = new TemplatesPluginConvention()
 
         // FIXME: would be better to allow user to configure the desired template set rather than get them all

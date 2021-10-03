@@ -19,14 +19,9 @@ package templates
 
 import groovy.text.GStringTemplateEngine
 import org.gradle.api.Project
-import org.gradle.util.Path
 
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
-
 /**
  * This class is used to construct a ProjectTemplate. A project template consists of files and directories. This builder
  * can be used to set up the necessary files and directories needed for new projects.
@@ -47,7 +42,6 @@ import java.util.jar.JarFile
  *       'java' {*          'Class1.java' 'public class Class1 {}' // creates the file 'Class1.java' with some initial content.
  *}*       'resources' {}*}*}* </pre>
  *
- * @author: elberry* Date: 4/9/11 6:04 PM
  */
 class ProjectTemplate {
 
@@ -184,9 +178,9 @@ class ProjectTemplate {
             if (!tLoc.exists()) {
                 return getClass().getResourceAsStream(template)
             }
-            return new FileInputStream(tLoc);
+            return new FileInputStream(tLoc)
         }
-        return new RuntimeException("Could not locate template: ${template}");
+        return new RuntimeException("Could not locate template: ${template}")
     }
 
 

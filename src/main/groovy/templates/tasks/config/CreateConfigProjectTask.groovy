@@ -63,7 +63,7 @@ class CreateConfigProjectTask extends AbstractJavaProjectTask {
                 testSrcDir = srcDir.listFiles({ it, name -> name.contains("test") } as FilenameFilter)?.last().listFiles({ it, name -> name.contains("java") } as FilenameFilter).last().absolutePath
                 mainSrcDir=mainSrcDir.minus(project.projectDir.path)
                 testSrcDir= testSrcDir.minus(project.projectDir.path)
-                mainResourceDir = srcDir.listFiles({ it, name -> name.contains("main") } as FilenameFilter)?.last().listFiles({ it, name -> name.contains("resources") } as FilenameFilter)?.last().absolutePath;
+                mainResourceDir = srcDir.listFiles({ it, name -> name.contains("main") } as FilenameFilter)?.last().listFiles({ it, name -> name.contains("resources") } as FilenameFilter)?.last().absolutePath
                 mainResourceDir= mainResourceDir.minus(project.projectDir.path)
             } catch (Exception e) {
                 e.printStackTrace()
